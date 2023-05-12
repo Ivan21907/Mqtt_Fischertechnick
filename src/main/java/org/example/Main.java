@@ -96,24 +96,32 @@ public class Main implements MqttCallback {
         //Agafem les claus del missatge que ens interessen i les guardem en variables
         double temperatura = json.getDouble("t");
         double humedad = json.getDouble("h");
+        String temps = json.getString("ts");
 
         // Verifiquem si han passat 30 segons des de la última insercio
         long currentTime = System.currentTimeMillis();
 
-        if (currentTime - lastInsertTime >= 30000) {
+        if (currentTime - lastInsertTime >= 5000) {
             lastInsertTime = currentTime;
 
             //Generem un nom de document unic basat en la marca de temps actual
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
-            String documento = "mqtt_" + dateFormat.format(new Date(currentTime));
+            String document = "mqtt_" + dateFormat.format(new Date(currentTime));
 
             //Agafem la col·leccio de la base de dades i creem un document amb el nom generat anteriorment
-            DocumentReference documentRef = db.collection("proves").document(documento);
+            DocumentReference documentRef = db.collection("proves").document(document);
 
             //Fem un hashmap amb les dades que volem guardar a la base de dades
             Map<String, Object> data = new HashMap<>();
-            data.put("Humitat", humedad + "%");
-            data.put("Temperatura", temperatura + "ºC");
+            data.put("Humitat", humedad);
+            data.put("Temperatura", temperatura);
+            //Obtenim el dia i la hora per separat
+            SimpleDateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+            String dia = dayFormat.format(new Date(currentTime));
+            String hora = timeFormat.format(new Date(currentTime));
+            data.put("Dia", dia);
+            data.put("Hora", hora);
 
             // Insertem el document a la base de dades
             ApiFuture<WriteResult> result = documentRef.set(data);
@@ -125,6 +133,7 @@ public class Main implements MqttCallback {
             // Mostrem per consola les dades que s'han guardat a la base de dades
             System.out.println("Temperatura: " + temperatura);
             System.out.println("Humitat: " + humedad);
+            System.out.println("Dia/Hora" + temps);
         }
     }
 
