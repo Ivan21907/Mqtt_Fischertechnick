@@ -133,6 +133,7 @@ public class Main implements MqttCallback {
             // Mostrem per consola les dades que s'han guardat a la base de dades
             System.out.println("Temperatura: " + temperatura);
             System.out.println("Humitat: " + humedad);
+
             System.out.println("Dia/Hora" + temps);
         }
     }
